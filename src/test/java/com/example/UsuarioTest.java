@@ -1,5 +1,6 @@
 package com.example;
 
+import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,7 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -31,12 +37,40 @@ public class UsuarioTest {
 	@BeforeClass
 	public static void setUpTest(){
 		System.setProperty("webdriver.chrome.driver", "D:\\Git\\Alura\\alura-selenium\\chromedriver.exe");
+		String commitScriptLocation1 = System.getProperty("${api.hostname}");
+		String commitScriptLocationEnv1 = System.getenv("${api.hostname}");
+
+		String commitScriptLocation2 = System.getProperty("{api.hostname}");
+		String commitScriptLocationEnv2 = System.getenv("{api.hostname}");
+
+
+		String commitScriptLocation3 = System.getProperty("api.hostname");
+		String commitScriptLocationEnv3 = System.getenv("api.hostname");
+
 		driver = new ChromeDriver();
 	}
 
 	@Before
 	public void configuraTestes(){
 		driver.get(hostname.concat(path));
+	}
+
+
+	@Test
+	public void deveEncontrarPalavraEmFrase() {
+		String frase = "O rato roeu a roupa do rei de Roma";
+
+		String keyword = "roupa";
+
+		Boolean found = Arrays.asList(frase.split(" ")).contains(keyword);
+		assertThat(found , equalTo(true));
+
+		List<String> palavras = Arrays.asList("Rato", "roupas", "rainha");
+		Optional encontrouAny = palavras.stream()
+				.filter(palavra -> frase.toLowerCase()
+				.contains(palavra.toLowerCase()))
+				.findAny();
+		assertThat("Deve encontrar palavra em frase:", encontrouAny.isPresent(), equalTo(true));
 	}
 
 	@Test
